@@ -64,7 +64,7 @@ def create_disponibilidad():
         return jsonify(disponibilidad), 201
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad', methods=['GET'])
 @token_required
@@ -76,7 +76,7 @@ def get_disponibilidad():
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/<int:disponibilidad_id>', methods=['GET'])
 @token_required
@@ -88,7 +88,7 @@ def get_disponibilidad_by_id(disponibilidad_id):
             return jsonify({'error': error}), 404
         return jsonify(disponibilidad), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/sede/<int:sede_id>', methods=['GET'])
 @token_required
@@ -100,7 +100,7 @@ def get_disponibilidad_by_sede(sede_id):
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/medicamento/<int:medicamento_id>', methods=['GET'])
 @token_required
@@ -112,7 +112,7 @@ def get_disponibilidad_by_medicamento(medicamento_id):
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/medicamento/<int:medicamento_id>/sede/<int:sede_id>', methods=['GET'])
 @token_required
@@ -124,7 +124,7 @@ def get_disponibilidad_by_medicamento_sede(medicamento_id, sede_id):
             return jsonify({'error': error}), 404
         return jsonify(disponibilidad), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/medicamentos-disponibles/sede/<int:sede_id>', methods=['GET'])
 @token_required
@@ -136,7 +136,7 @@ def get_medicamentos_disponibles_en_sede(sede_id):
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/sedes-con-medicamento/<int:medicamento_id>', methods=['GET'])
 @token_required
@@ -148,7 +148,7 @@ def get_sedes_con_medicamento(medicamento_id):
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/stock-bajo', methods=['GET'])
 @token_required
@@ -163,7 +163,7 @@ def get_stock_bajo():
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/agotados', methods=['GET'])
 @token_required
@@ -175,7 +175,7 @@ def get_medicamentos_agotados():
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/estado/<string:estado>', methods=['GET'])
 @token_required
@@ -192,7 +192,7 @@ def get_disponibilidad_by_estado(estado):
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/search', methods=['GET'])
 @token_required
@@ -213,7 +213,7 @@ def search_disponibilidad():
         
         return jsonify(disponibilidades), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/resumen', methods=['GET'])
 @token_required
@@ -225,7 +225,7 @@ def get_resumen_disponibilidad():
             return jsonify({'error': error}), 400
         return jsonify(resumen), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/<int:disponibilidad_id>', methods=['PUT'])
 @token_required
@@ -249,7 +249,7 @@ def update_disponibilidad(disponibilidad_id):
         
         return jsonify(disponibilidad), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/<int:disponibilidad_id>/ajustar-stock', methods=['PUT'])
 @token_required
@@ -288,7 +288,7 @@ def ajustar_stock(disponibilidad_id):
         
         return jsonify(disponibilidad), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/<int:disponibilidad_id>', methods=['DELETE'])
 @token_required
@@ -308,7 +308,7 @@ def delete_disponibilidad(disponibilidad_id):
         
         return jsonify({'message': 'Disponibilidad eliminada correctamente'}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 # Rutas específicas para notificaciones en tiempo real
 @disp_routes.route('/disponibilidad/alertas/stock-bajo', methods=['GET'])
@@ -337,7 +337,7 @@ def get_alertas_stock_bajo():
         
         return jsonify(alertas), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @disp_routes.route('/disponibilidad/notificar-consumo', methods=['POST'])
 @token_required
@@ -395,4 +395,4 @@ def notificar_consumo():
         }), 200
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500

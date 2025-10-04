@@ -51,7 +51,7 @@ def create_recoleccion_batch():
         return jsonify(recolecciones), 201
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @recoleccion_routes.route('/recolecciones', methods=['POST'])
 @token_required
@@ -90,7 +90,7 @@ def create_recoleccion():
         return jsonify(recoleccion), 201
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @recoleccion_routes.route('/recolecciones', methods=['GET'])
 @token_required
@@ -106,7 +106,7 @@ def get_recolecciones():
             return jsonify({'error': error}), 400
         return jsonify(recolecciones), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @recoleccion_routes.route('/recolecciones/usuario/<int:usuario_id>', methods=['GET'])
 @token_required
@@ -122,7 +122,7 @@ def get_recolecciones_by_usuario(usuario_id):
             return jsonify({'error': error}), 400
         return jsonify(recolecciones), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @recoleccion_routes.route('/recolecciones/<int:recoleccion_id>', methods=['GET'])
 @token_required
@@ -139,7 +139,7 @@ def get_recoleccion(recoleccion_id):
         
         return jsonify(recoleccion), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @recoleccion_routes.route('/recolecciones/estado/<int:estado>', methods=['GET'])
 @token_required
@@ -157,7 +157,7 @@ def get_recolecciones_by_estado(estado):
             return jsonify({'error': error}), 400
         return jsonify(recolecciones), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @recoleccion_routes.route('/recolecciones/<int:recoleccion_id>', methods=['PUT'])
 @token_required
@@ -186,7 +186,7 @@ def update_recoleccion(recoleccion_id):
         
         return jsonify(recoleccion), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @recoleccion_routes.route('/recolecciones/<int:recoleccion_id>/cancelar', methods=['POST'])
 @token_required
@@ -217,7 +217,7 @@ def cancelar_recoleccion(recoleccion_id):
         
         return jsonify({'message': 'Recolección cancelada correctamente', 'recoleccion': recoleccion_actualizada}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @recoleccion_routes.route('/recolecciones/check-vencimientos', methods=['POST'])
 @token_required
@@ -234,4 +234,4 @@ def check_vencimientos():
         
         return jsonify({'message': f'Se actualizaron {count} recolecciones vencidas'}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500

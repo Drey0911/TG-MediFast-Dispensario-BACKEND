@@ -70,7 +70,7 @@ def create_medicamento():
         
         return jsonify(medicamento), 201
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @med_routes.route('/medicamentos', methods=['GET'])
 @token_required
@@ -81,7 +81,7 @@ def get_medicamentos():
             return jsonify({'error': error}), 400
         return jsonify(medicamentos), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @med_routes.route('/medicamentos/<int:medicamento_id>', methods=['GET'])
 @token_required
@@ -92,7 +92,7 @@ def get_medicamento(medicamento_id):
             return jsonify({'error': error}), 404
         return jsonify(medicamento), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @med_routes.route('/medicamentos/referencia/<string:referencia>', methods=['GET'])
 @token_required
@@ -103,7 +103,7 @@ def get_medicamento_by_referencia(referencia):
             return jsonify({'error': error}), 404
         return jsonify(medicamento), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @med_routes.route('/medicamentos/<int:medicamento_id>', methods=['PUT'])
 @token_required
@@ -135,7 +135,7 @@ def update_medicamento(medicamento_id):
         
         return jsonify(medicamento), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @med_routes.route('/medicamentos/<int:medicamento_id>', methods=['DELETE'])
 @token_required
@@ -150,7 +150,7 @@ def delete_medicamento(medicamento_id):
         
         return jsonify({'message': 'Medicamento eliminado correctamente'}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @med_routes.route('/medicamentos/search', methods=['GET'])
 @token_required
@@ -170,4 +170,4 @@ def search_medicamentos():
         
         return jsonify(medicamentos), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500

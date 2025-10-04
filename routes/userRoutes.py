@@ -52,7 +52,7 @@ def register():
         
         return jsonify({'user': user, 'token': token}), 201
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
     
 @user_routes.route('/recover-password', methods=['POST'])
 def recover_password():
@@ -69,7 +69,7 @@ def recover_password():
         
         return jsonify(result), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @user_routes.route('/login', methods=['POST'])
 def login():
@@ -87,7 +87,7 @@ def login():
         token = UserService.generate_jwt(user)
         return jsonify({'user': user, 'token': token}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo'}), 500
 
 @user_routes.route('/users', methods=['GET'])
 @token_required
@@ -98,7 +98,7 @@ def get_users():
             return jsonify({'error': error}), 400
         return jsonify(users), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @user_routes.route('/users/<int:user_id>', methods=['GET'])
 @token_required
@@ -109,7 +109,7 @@ def get_user(user_id):
             return jsonify({'error': error}), 404
         return jsonify(user), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @user_routes.route('/users/<int:user_id>', methods=['PUT'])
 @token_required
@@ -125,7 +125,7 @@ def update_user(user_id):
         
         return jsonify(user), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @user_routes.route('/users/<int:user_id>', methods=['DELETE'])
 @token_required
@@ -140,7 +140,7 @@ def delete_user(user_id):
         
         return jsonify({'message': 'Usuario eliminado correctamente'}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @user_routes.route('/me', methods=['GET'])
 @token_required
@@ -152,4 +152,4 @@ def get_current_user():
             return jsonify({'error': error}), 404
         return jsonify(user), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500

@@ -49,7 +49,7 @@ def agregar_favorito():
         
         return jsonify(favorito), 201
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @favoritos_routes.route('/favoritos/usuario', methods=['GET'])
 @token_required
@@ -61,7 +61,7 @@ def obtener_favoritos_usuario():
             return jsonify({'error': error}), 400
         return jsonify(favoritos), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @favoritos_routes.route('/favoritos/<int:id_medicamento>', methods=['GET'])
 @token_required
@@ -73,7 +73,7 @@ def verificar_favorito(id_medicamento):
             return jsonify({'error': error}), 400
         return jsonify({'es_favorito': es_favorito}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @favoritos_routes.route('/favoritos/<int:id_medicamento>', methods=['DELETE'])
 @token_required
@@ -92,7 +92,7 @@ def eliminar_favorito(id_medicamento):
         
         return jsonify({'message': 'Favorito eliminado correctamente'}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
 @favoritos_routes.route('/favoritos/medicamento/<int:id_medicamento>', methods=['GET'])
 @token_required
@@ -103,4 +103,4 @@ def obtener_usuarios_favorito(id_medicamento):
             return jsonify({'error': error}), 400
         return jsonify(usuarios), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500

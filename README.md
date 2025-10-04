@@ -90,6 +90,20 @@ backend/
    python app.py
    ```
 
+5. Si se desea probar con el front en react native, necesitamos un tunel SSL en NGROK
+   ```
+   instalando NGROK en nuestro pc procedemos a:
+
+   - en la terminal de NGROK poner el comando "ngrok config add-authtoken $YOUR_AUTHTOKEN"
+   el token lo encontramos en la pagina oficianl de ngrok al iniciar sesion con una cuenta creada
+
+   - posteriormente, usamos el comando "ngrok http 8000" ya que esta app backend trabaja con 8000 pero
+   deberia ir el puerto que usa la app en localhost
+
+   - luego de crear el puente SSL ngrok nos entrega una url la cual se pegara en donde va el consumo de API
+   en el front, de esta manera podemos usar local el proyecto
+   ```
+
 ## Rutas API
 
 ### Rutas de Usuario (`/api/users`)
