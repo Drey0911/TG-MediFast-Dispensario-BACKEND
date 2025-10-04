@@ -189,46 +189,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-// Vista previa de la imagen
-document.getElementById('foto').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    const preview = document.getElementById('previewImage');
-    const previewContainer = document.getElementById('imagePreview');
-    
-    if (file) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            previewContainer.style.display = 'block';
-        }
-        
-        reader.readAsDataURL(file);
-    } else {
-        previewContainer.style.display = 'none';
-    }
-});
-
-// Validación básica del formulario
-document.getElementById('editMedicamentoForm').addEventListener('submit', function(e) {
-    const nombreMedicamento = document.getElementById('nombreMedicamento').value.trim();
-    const tipo = document.getElementById('tipo').value.trim();
-    const referencia = document.getElementById('referencia').value.trim();
-    const foto = document.getElementById('foto').files[0];
-    
-    if (!nombreMedicamento || !tipo || !referencia) {
-        e.preventDefault();
-        alert('Los campos marcados con * son obligatorios.');
-        return false;
-    }
-    
-    // Validar tamaño de archivo si se subió uno
-    if (foto && foto.size > 5 * 1024 * 1024) {
-        e.preventDefault();
-        alert('La imagen no puede superar los 5MB.');
-        return false;
-    }
-});
-</script>
+<script src="{{ url_for('static', filename='js/medicamento.js') }}"></script>
 {% endblock %}

@@ -81,7 +81,9 @@ def dashboard():
     
     # Obtener estadísticas de sedes
     sedes, error_sede = SedeService.get_all_sedes()
+    recolecciones, error_reco = RecoleccionService.get_all_recolecciones()
     total_sedes = len(sedes) if sedes else 0
+    total_recolecciones = len(recolecciones) if recolecciones else 0
     
     # Estadísticas simplificadas
     stats = {
@@ -89,7 +91,8 @@ def dashboard():
         'admin_users': admin_users,
         'regular_users': regular_users,
         'total_medicamentos': total_medicamentos,
-        'total_sedes': total_sedes
+        'total_sedes': total_sedes,
+        'total_recolecciones': total_recolecciones
     }
     
     return render_template('admin/dashboard.html', stats=stats)

@@ -306,22 +306,9 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-// Función para confirmar eliminación
-function confirmDelete(medicamentoId, medicamentoName) {
-    document.getElementById('deleteMedicamentoName').textContent = medicamentoName;
-    document.getElementById('deleteForm').action = `/admin/medicamentos/${medicamentoId}/delete`;
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-    deleteModal.show();
-}
-</script>
+<script src="{{ url_for('static', filename='js/medicamento.js') }}"></script>
+{% endblock %}
 
-<style>
-.card {
-    transition: transform 0.2s ease-in-out;
-}
-.card:hover {
-    transform: translateY(-2px);
-}
-</style>
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/viewMed.css') }}" rel="stylesheet">
 {% endblock %}

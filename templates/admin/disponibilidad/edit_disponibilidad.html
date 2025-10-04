@@ -179,22 +179,22 @@
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-3 mb-2">
-                                                <button type="button" class="btn btn-outline-success btn-sm w-100" onclick="ajustarStock(10)">
+                                                <button type="button" class="btn btn-outline-success btn-sm w-100 quick-action-btn" data-action="add" data-amount="10">
                                                     <i class="fas fa-plus me-1"></i>+10
                                                 </button>
                                             </div>
                                             <div class="col-md-3 mb-2">
-                                                <button type="button" class="btn btn-outline-success btn-sm w-100" onclick="ajustarStock(50)">
+                                                <button type="button" class="btn btn-outline-success btn-sm w-100 quick-action-btn" data-action="add" data-amount="50">
                                                     <i class="fas fa-plus me-1"></i>+50
                                                 </button>
                                             </div>
                                             <div class="col-md-3 mb-2">
-                                                <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="ajustarStock(-10)">
+                                                <button type="button" class="btn btn-outline-danger btn-sm w-100 quick-action-btn" data-action="subtract" data-amount="10">
                                                     <i class="fas fa-minus me-1"></i>-10
                                                 </button>
                                             </div>
                                             <div class="col-md-3 mb-2">
-                                                <button type="button" class="btn btn-outline-warning btn-sm w-100" onclick="setStock(0)">
+                                                <button type="button" class="btn btn-outline-warning btn-sm w-100 quick-action-btn" data-action="set" data-amount="0">
                                                     <i class="fas fa-times me-1"></i>Agotar
                                                 </button>
                                             </div>
@@ -230,81 +230,11 @@
 
 {% block scripts %}
 <script>
-const stockOriginal = {{ disponibilidad.stock }};
-
-// Auto-actualizar estado basado en stock
-document.getElementById('stock').addEventListener('input', function() {
-    const stock = parseInt(this.value);
-    const estadoSelect = document.getElementById('estado');
-    
-    if (!isNaN(stock)) {
-        if (stock === 0) {
-            estadoSelect.value = 'agotado';
-        } else if (stock <= 10) {
-            estadoSelect.value = 'poco_stock';
-        } else {
-            estadoSelect.value = 'disponible';
-        }
-        
-        // Mostrar indicador de cambio
-        mostrarCambioStock(stock);
-    }
-});
-
-// Función para mostrar cambio de stock
-function mostrarCambioStock(stockNuevo) {
-    const indicator = document.getElementById('stockChangeIndicator');
-    const stockNuevoDiv = document.getElementById('stockNuevo');
-    const stockDiferenciaDiv = document.getElementById('stockDiferencia');
-    
-    if (stockNuevo !== stockOriginal) {
-        stockNuevoDiv.textContent = stockNuevo + ' unidades';
-        
-        const diferencia = stockNuevo - stockOriginal;
-        if (diferencia > 0) {
-            stockDiferenciaDiv.innerHTML = `<span class="text-success">+${diferencia} unidades</span>`;
-        } else {
-            stockDiferenciaDiv.innerHTML = `<span class="text-danger">${diferencia} unidades</span>`;
-        }
-        
-        indicator.style.display = 'block';
-    } else {
-        indicator.style.display = 'none';
-    }
-}
-
-// Funciones para acciones rápidas
-function ajustarStock(cantidad) {
-    const stockInput = document.getElementById('stock');
-    const stockActual = parseInt(stockInput.value) || 0;
-    const nuevoStock = Math.max(0, stockActual + cantidad);
-    
-    stockInput.value = nuevoStock;
-    stockInput.dispatchEvent(new Event('input'));
-}
-
-function setStock(cantidad) {
-    const stockInput = document.getElementById('stock');
-    stockInput.value = cantidad;
-    stockInput.dispatchEvent(new Event('input'));
-}
-
-// Validación del formulario
-document.getElementById('editDisponibilidadForm').addEventListener('submit', function(e) {
-    const stock = document.getElementById('stock').value;
-    const estado = document.getElementById('estado').value;
-    
-    if (!stock || !estado) {
-        e.preventDefault();
-        alert('Todos los campos marcados con * son obligatorios.');
-        return false;
-    }
-    
-    if (parseInt(stock) < 0) {
-        e.preventDefault();
-        alert('El stock no puede ser negativo.');
-        return false;
-    }
-});
+    // Pasar datos desde Jinja2 al JavaScript
+    const disponibilidadData = {
+        stockOriginal: {{ disponibilidad.stock }},
+        estadoOriginal: "{{ disponibilidad.estado }}"
+    };
 </script>
+<script src="{{ url_for('static', filename='js/edit_disponibilidad.js') }}"></script>
 {% endblock %}

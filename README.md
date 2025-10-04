@@ -184,6 +184,19 @@ El sistema se integra con la [API de WhatsApp Business](https://developers.faceb
 y se debe escribir un mensaje previamente para el envio en la ventana de 24 horas, esto solo en modo desarrollo o prototipo en entorno real, se
 necesitaria la API verificada con WhatsApp Business)
 
+## Usuario administrador
+
+Para usarse la aplicacion de forma correcta y pruebas tenemos un usuario predeterminado:
+
+DNI: 10101010
+Pass: Admin.123456789
+
+en tu motor de BD sea local o desplegado pega lo siguiente en el apartado de sentencias SQL o de creacion:
+
+INSERT INTO `usuarios` (`id`, `nombre`, `apellidos`, `dni`, `telefono`, `password`, `rol`) VALUES
+(1, 'MediFast', 'Dispensario', '10101010', '+573000000000', '$2b$12$8uNWOICxpZPmFb84U.8D9eGiGslHPHUd4aDT9.uvjTs9ZT1tBnvYG', 'admin');
+
+
 ## Licencia
 
 Todos los derechos reservados. © 2025 Andrey Stteven Mantilla Leon y Daniel Esteban Pinzon Cardenas.

@@ -184,15 +184,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-// Validación básica del formulario
-document.getElementById('editRecoleccionForm').addEventListener('submit', function(e) {
-    const cumplimiento = document.getElementById('cumplimiento').value;
-
-    if (cumplimiento === '') {
-        e.preventDefault();
-        alert('Por favor selecciona un estado de cumplimiento.');
-    }
-});
-</script>
+<script src="{{ url_for('static', filename='js/recoleccion.js') }}"></script>
 {% endblock %}

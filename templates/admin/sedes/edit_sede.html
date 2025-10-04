@@ -146,18 +146,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-// Validación básica del formulario
-document.getElementById('editSedeForm').addEventListener('submit', function(e) {
-    const nombreSede = document.getElementById('nombreSede').value.trim();
-    const ciudad = document.getElementById('ciudad').value.trim();
-    const ubicacion = document.getElementById('ubicacion').value.trim();
-    
-    if (!nombreSede || !ciudad || !ubicacion) {
-        e.preventDefault();
-        alert('Todos los campos marcados con * son obligatorios.');
-        return false;
-    }
-});
-</script>
+<script src="{{ url_for('static', filename='js/sede.js') }}"></script>
 {% endblock %}

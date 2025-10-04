@@ -251,28 +251,9 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-// Función para establecer el tipo desde los badges
-function setTipo(tipo) {
-    document.getElementById('tipo').value = tipo;
-    document.getElementById('tipo').focus();
-}
+<script src="{{ url_for('static', filename='js/medicamento.js') }}"></script>
+{% endblock %}
 
-// Opcional: Auto-enfoque en el primer campo al cargar la página
-document.addEventListener('DOMContentLoaded', function() {
-    const nombreField = document.getElementById('nombre');
-    if (nombreField && !nombreField.value) {
-        nombreField.focus();
-    }
-});
-</script>
-
-<style>
-.cursor-pointer {
-    cursor: pointer;
-}
-.cursor-pointer:hover {
-    opacity: 0.8;
-}
-</style>
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/searchMed.css') }}" rel="stylesheet">
 {% endblock %}
