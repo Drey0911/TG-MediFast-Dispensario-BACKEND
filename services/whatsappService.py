@@ -30,7 +30,7 @@ class WhatsAppService:
         # Crear el mensaje de texto con la información
         mensaje = f"""🚨 Notificación Medifast 
 
-Hola, se ha realizado un cambio en el stock de un medicamento que tienes en favoritos.:
+Hola, se ha realizado un cambio en el stock de un medicamento que tienes en favoritos:
 
 📋 Paciente: {nombre_paciente}
 💊 Medicamento: {nombre_medicamento}
