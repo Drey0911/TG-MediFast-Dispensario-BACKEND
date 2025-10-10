@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from services.favoritosService import FavoritosService
 from functools import wraps
 from socketsExtends import socketio
+from sqlalchemy.exc import OperationalError, DatabaseError
 from services.userService import UserService
 
 favoritos_routes = Blueprint('favoritos_routes', __name__)
@@ -48,6 +49,13 @@ def agregar_favorito():
         socketio.emit('favorito_agregado', favorito, namespace='/')
         
         return jsonify(favorito), 201
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en favRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -60,6 +68,13 @@ def obtener_favoritos_usuario():
         if error:
             return jsonify({'error': error}), 400
         return jsonify(favoritos), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en favRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -72,6 +87,13 @@ def verificar_favorito(id_medicamento):
         if error:
             return jsonify({'error': error}), 400
         return jsonify({'es_favorito': es_favorito}), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en favRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -91,6 +113,13 @@ def eliminar_favorito(id_medicamento):
         }, namespace='/')
         
         return jsonify({'message': 'Favorito eliminado correctamente'}), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en favRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -102,5 +131,12 @@ def obtener_usuarios_favorito(id_medicamento):
         if error:
             return jsonify({'error': error}), 400
         return jsonify(usuarios), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en favRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500

@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, current_app
 from services.recoleccionService import RecoleccionService
 from functools import wraps
 from services.userService import UserService
+from sqlalchemy.exc import OperationalError, DatabaseError
 from socketsExtends import socketio  # Importamos la instancia de SocketIO
 
 recoleccion_routes = Blueprint('recoleccion_routes', __name__)
@@ -50,6 +51,12 @@ def create_recoleccion_batch():
         
         return jsonify(recolecciones), 201
         
+    except OperationalError as e:
+        print(f"Error de conexión a BD en recoleccionRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -89,6 +96,12 @@ def create_recoleccion():
         
         return jsonify(recoleccion), 201
         
+    except OperationalError as e:
+        print(f"Error de conexión a BD en recoleccionRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -105,6 +118,13 @@ def get_recolecciones():
         if error:
             return jsonify({'error': error}), 400
         return jsonify(recolecciones), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en recoleccionRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -121,6 +141,13 @@ def get_recolecciones_by_usuario(usuario_id):
         if error:
             return jsonify({'error': error}), 400
         return jsonify(recolecciones), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en recoleccionRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -138,6 +165,13 @@ def get_recoleccion(recoleccion_id):
             return jsonify({'error': 'No puedes ver esta recolección'}), 403
         
         return jsonify(recoleccion), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en recoleccionRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -156,6 +190,13 @@ def get_recolecciones_by_estado(estado):
         if error:
             return jsonify({'error': error}), 400
         return jsonify(recolecciones), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en recoleccionRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -185,6 +226,13 @@ def update_recoleccion(recoleccion_id):
         socketio.emit('recoleccion_actualizada', recoleccion, namespace='/')
         
         return jsonify(recoleccion), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en recoleccionRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -216,6 +264,13 @@ def cancelar_recoleccion(recoleccion_id):
         socketio.emit('recoleccion_cancelada', recoleccion_actualizada, namespace='/')
         
         return jsonify({'message': 'Recolección cancelada correctamente', 'recoleccion': recoleccion_actualizada}), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en recoleccionRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -233,5 +288,12 @@ def check_vencimientos():
             return jsonify({'error': error}), 400
         
         return jsonify({'message': f'Se actualizaron {count} recolecciones vencidas'}), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en recoleccionRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500

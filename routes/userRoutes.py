@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from services.userService import UserService
 from functools import wraps
+from sqlalchemy.exc import OperationalError, DatabaseError
 from socketsExtends import socketio  # Importamos la instancia de SocketIO
 
 user_routes = Blueprint('user_routes', __name__)
@@ -51,6 +52,13 @@ def register():
         socketio.emit('usuario_creado', user, namespace='/')
         
         return jsonify({'user': user, 'token': token}), 201
+    
+    except OperationalError as e:
+        print(f"Error de conexión a BD en userRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
     
@@ -68,6 +76,13 @@ def recover_password():
             return jsonify({'error': error}), 400
         
         return jsonify(result), 200
+    
+    except OperationalError as e:
+        print(f"Error de conexión a BD en userRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -86,6 +101,13 @@ def login():
         
         token = UserService.generate_jwt(user)
         return jsonify({'user': user, 'token': token}), 200
+    
+    except OperationalError as e:
+        print(f"Error de conexión a BD en userRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo'}), 500
 
@@ -97,6 +119,13 @@ def get_users():
         if error:
             return jsonify({'error': error}), 400
         return jsonify(users), 200
+    
+    except OperationalError as e:
+        print(f"Error de conexión a BD en userRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -108,6 +137,13 @@ def get_user(user_id):
         if error:
             return jsonify({'error': error}), 404
         return jsonify(user), 200
+    
+    except OperationalError as e:
+        print(f"Error de conexión a BD en userRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -124,6 +160,13 @@ def update_user(user_id):
         socketio.emit('usuario_actualizado', user, namespace='/')
         
         return jsonify(user), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en userRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+        
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -139,6 +182,13 @@ def delete_user(user_id):
         socketio.emit('usuario_eliminado', {'id': user_id}, namespace='/')
         
         return jsonify({'message': 'Usuario eliminado correctamente'}), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en userRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+        
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -151,5 +201,12 @@ def get_current_user():
         if error:
             return jsonify({'error': error}), 404
         return jsonify(user), 200
+        
+    except OperationalError as e:
+        print(f"Error de conexión a BD en userRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+        
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500

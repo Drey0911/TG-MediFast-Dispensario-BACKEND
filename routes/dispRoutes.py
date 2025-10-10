@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, current_app
 from services.dispService import DispService
 from functools import wraps
 from services.userService import UserService
+from sqlalchemy.exc import OperationalError, DatabaseError
 from socketsExtends import socketio  # Importamos la instancia de SocketIO
 
 disp_routes = Blueprint('disp_routes', __name__)
@@ -63,6 +64,13 @@ def create_disponibilidad():
         
         return jsonify(disponibilidad), 201
         
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -75,6 +83,13 @@ def get_disponibilidad():
         if error:
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -87,6 +102,13 @@ def get_disponibilidad_by_id(disponibilidad_id):
         if error:
             return jsonify({'error': error}), 404
         return jsonify(disponibilidad), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -99,6 +121,13 @@ def get_disponibilidad_by_sede(sede_id):
         if error:
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -111,6 +140,13 @@ def get_disponibilidad_by_medicamento(medicamento_id):
         if error:
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -123,6 +159,13 @@ def get_disponibilidad_by_medicamento_sede(medicamento_id, sede_id):
         if error:
             return jsonify({'error': error}), 404
         return jsonify(disponibilidad), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -135,6 +178,13 @@ def get_medicamentos_disponibles_en_sede(sede_id):
         if error:
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -147,6 +197,13 @@ def get_sedes_con_medicamento(medicamento_id):
         if error:
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -162,6 +219,13 @@ def get_stock_bajo():
         if error:
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -174,6 +238,13 @@ def get_medicamentos_agotados():
         if error:
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -191,6 +262,13 @@ def get_disponibilidad_by_estado(estado):
         if error:
             return jsonify({'error': error}), 400
         return jsonify(disponibilidades), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -212,6 +290,13 @@ def search_disponibilidad():
             return jsonify({'error': error}), 400
         
         return jsonify(disponibilidades), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -224,6 +309,13 @@ def get_resumen_disponibilidad():
         if error:
             return jsonify({'error': error}), 400
         return jsonify(resumen), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -248,6 +340,13 @@ def update_disponibilidad(disponibilidad_id):
         socketio.emit('disponibilidad_actualizada', disponibilidad, namespace='/')
         
         return jsonify(disponibilidad), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -287,6 +386,13 @@ def ajustar_stock(disponibilidad_id):
         }, namespace='/')
         
         return jsonify(disponibilidad), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -307,6 +413,13 @@ def delete_disponibilidad(disponibilidad_id):
         socketio.emit('disponibilidad_eliminada', {'id': disponibilidad_id}, namespace='/')
         
         return jsonify({'message': 'Disponibilidad eliminada correctamente'}), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -336,6 +449,13 @@ def get_alertas_stock_bajo():
             })
         
         return jsonify(alertas), 200
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -394,5 +514,12 @@ def notificar_consumo():
             'disponibilidad': disponibilidad
         }), 200
         
+            
+    except OperationalError as e:
+        print(f"Error de conexión a BD en dispRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500

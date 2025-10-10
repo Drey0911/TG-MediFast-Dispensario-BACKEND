@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, current_app
 from services.medService import MedService
 from services.userService import UserService
 from functools import wraps
+from sqlalchemy.exc import OperationalError, DatabaseError
 from socketsExtends import socketio  # Importamos la instancia de SocketIO
 
 med_routes = Blueprint('med_routes', __name__)
@@ -69,6 +70,13 @@ def create_medicamento():
         socketio.emit('medicamento_creado', medicamento, namespace='/')
         
         return jsonify(medicamento), 201
+    
+    except OperationalError as e:
+        print(f"Error de conexión a BD en medRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -80,6 +88,13 @@ def get_medicamentos():
         if error:
             return jsonify({'error': error}), 400
         return jsonify(medicamentos), 200
+    
+    except OperationalError as e:
+        print(f"Error de conexión a BD en medRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -91,6 +106,13 @@ def get_medicamento(medicamento_id):
         if error:
             return jsonify({'error': error}), 404
         return jsonify(medicamento), 200
+    
+    except OperationalError as e:
+        print(f"Error de conexión a BD en medRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -102,6 +124,13 @@ def get_medicamento_by_referencia(referencia):
         if error:
             return jsonify({'error': error}), 404
         return jsonify(medicamento), 200
+    
+    except OperationalError as e:
+        print(f"Error de conexión a BD en medRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -134,6 +163,13 @@ def update_medicamento(medicamento_id):
         socketio.emit('medicamento_actualizado', medicamento, namespace='/')
         
         return jsonify(medicamento), 200
+    
+    except OperationalError as e:
+        print(f"Error de conexión a BD en medRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -149,6 +185,13 @@ def delete_medicamento(medicamento_id):
         socketio.emit('medicamento_eliminado', {'id': medicamento_id}, namespace='/')
         
         return jsonify({'message': 'Medicamento eliminado correctamente'}), 200
+    
+    except OperationalError as e:
+        print(f"Error de conexión a BD en medRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
 
@@ -169,5 +212,12 @@ def search_medicamentos():
             return jsonify({'error': error}), 400
         
         return jsonify(medicamentos), 200
+    
+    except OperationalError as e:
+        print(f"Error de conexión a BD en medRoutes: {e}")
+        return jsonify({
+            'error': 'Problema de conexión inestable. Intente nuevamente.'
+        }), 503
+    
     except Exception as e:
         return jsonify({'El servidor tardo mucho en responder, intentelo de nuevo mas tarde'}), 500
