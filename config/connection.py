@@ -1,7 +1,9 @@
 import os
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import text 
 from dotenv import load_dotenv
+from sqlalchemy.pool import NullPool
 
 load_dotenv()
 
@@ -14,25 +16,17 @@ def get_db_connection(app):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('JWT_SECRET')
     
-    # Configuración específica para MySQL y problemas de conexión
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        'pool_recycle': 280,           # Menor que wait_timeout de MySQL
-        'pool_pre_ping': True,         # verifica conexión antes de cada query
-        'pool_timeout': 30,
-        'pool_size': 5,
-        'max_overflow': 10,
-        'connect_args': {
-            'connect_timeout': 30,     # Timeout para establecer conexión
-        }
+        'poolclass': NullPool, 
     }
     
     db.init_app(app)
     
-    # Verificar conexión al inicializar
     with app.app_context():
         try:
-            db.engine.connect()
-            print("Conexión a BD establecida correctamente")
+            db.session.execute(text('SELECT 1'))
+            db.session.remove() 
+            print("Conexión a BD establecida correctamente (NullPool)")
         except Exception as e:
             print(f"Error conectando a BD: {e}")
     

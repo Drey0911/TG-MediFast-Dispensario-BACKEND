@@ -798,7 +798,6 @@ def recolecciones():
 @admin_routes.route('/recolecciones/<string:norecoleccion>/edit', methods=['GET', 'POST'])
 @admin_required
 def edit_recoleccion(norecoleccion):
-    # Obtener todas las recolecciones con este NoRecoleccion
     recolecciones, error = RecoleccionService.get_recolecciones_by_norecoleccion(norecoleccion)
     if error or not recolecciones:
         flash(f'Recolecciones no encontradas: {error}', 'error')
@@ -815,11 +814,21 @@ def edit_recoleccion(norecoleccion):
         
         try:
             nuevo_cumplimiento = int(cumplimiento)
-            data = {'cumplimiento': nuevo_cumplimiento}
             
             # Actualizar todas las recolecciones con este NoRecoleccion
             updated_count = 0
             for rec in recolecciones:
+                # Obtener el estado actual antes de actualizar
+                recoleccion_actual = RecoleccionService.get_recoleccion_by_id(rec['id'])
+                if recoleccion_actual:
+                    # Incluir el estado actual en los datos para que el servicio pueda comparar
+                    data = {
+                        'cumplimiento': nuevo_cumplimiento,
+                        'cumplimiento_anterior': recoleccion_actual[0].get('cumplimiento')
+                    }
+                else:
+                    data = {'cumplimiento': nuevo_cumplimiento}
+                
                 updated_rec, error = RecoleccionService.update_recoleccion(rec['id'], data)
                 if updated_rec:
                     updated_count += 1
@@ -844,7 +853,6 @@ def edit_recoleccion(norecoleccion):
                                    recolecciones=recolecciones,
                                    norecoleccion=norecoleccion)
     
-    # GET request
     return render_template('admin/recolecciones/edit_recoleccion.html', 
                            recolecciones=recolecciones,
                            norecoleccion=norecoleccion)

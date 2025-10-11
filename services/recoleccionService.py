@@ -272,8 +272,8 @@ class RecoleccionService:
             if not recoleccion:
                 return None, "Recolección no encontrada"
             
-            # Verificar si el estado cambia a cancelado (estado = 3)
-            if 'cumplimiento' in data and data['cumplimiento'] == 3 and recoleccion.cumplimiento != 3:
+            # Verificar si el estado cambia a cancelado (estado = 4)
+            if 'cumplimiento' in data and data['cumplimiento'] == 4 and recoleccion.cumplimiento != 4:
                 # Devolver el stock a la disponibilidad
                 disponibilidad = Disponibilidad.query.filter_by(
                     id_medicamento=recoleccion.id_medicamento,
@@ -411,3 +411,54 @@ class RecoleccionService:
             return None, f"Error de base de datos: {str(e)}"
         except Exception as e:
             return None, f"Error inesperado: {str(e)}"
+        
+    @staticmethod
+    def cancelar_recoleccion_con_stock(recoleccion_id):
+        """
+        Cancela una recolección (soft delete) y devuelve el stock
+        """
+        try:
+            recoleccion = Recoleccion.query.get(recoleccion_id)
+            if not recoleccion:
+                return False, "Recolección no encontrada"
+            
+            # Verificar que la recolección no esté ya cancelada o cumplida
+            if recoleccion.cumplimiento == 4:  # 4 = CANCELADO
+                return False, "La recolección ya está cancelada"
+            
+            if recoleccion.cumplimiento == 1:  # 1 = CUMPLIDA
+                return False, "No se puede cancelar una recolección ya cumplida"
+            
+            # Buscar la disponibilidad correspondiente
+            disponibilidad = Disponibilidad.query.filter_by(
+                id_medicamento=recoleccion.id_medicamento,
+                id_sede=recoleccion.id_sede
+            ).first()
+            
+            if not disponibilidad:
+                return False, f"No se encontró disponibilidad para el medicamento en la sede"
+            
+            # Devolver el stock
+            disponibilidad.stock += recoleccion.cantidad
+            
+            # Actualizar estado de disponibilidad
+            if disponibilidad.stock == 0:
+                disponibilidad.estado = 'agotado'
+            elif disponibilidad.stock <= 10:
+                disponibilidad.estado = 'poco_stock'
+            else:
+                disponibilidad.estado = 'disponible'
+            
+            # Marcar la recolección como cancelada (soft delete)
+            recoleccion.cumplimiento = 4  # 4 = CANCELADO
+            
+            db.session.commit()
+            
+            return True, None
+            
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return False, f"Error de base de datos: {str(e)}"
+        except Exception as e:
+            db.session.rollback()
+            return False, f"Error inesperado: {str(e)}"

@@ -239,7 +239,7 @@ def update_recoleccion(recoleccion_id):
 @recoleccion_routes.route('/recolecciones/<int:recoleccion_id>/cancelar', methods=['POST'])
 @token_required
 def cancelar_recoleccion(recoleccion_id):
-    """Cancelar una recolección (soft delete)"""
+    """Cancelar una recolección (soft delete) y devolver stock"""
     try:
         # Obtener recolección para verificar permisos
         recoleccion, error = RecoleccionService.get_recoleccion_by_id(recoleccion_id)
@@ -250,8 +250,8 @@ def cancelar_recoleccion(recoleccion_id):
         if int(request.current_user.get('sub')) != recoleccion['id_usuario'] and request.current_user.get('rol') != 'admin':
             return jsonify({'error': 'No puedes cancelar esta recolección'}), 403
         
-        # Actualizar el estado a 4 (CANCELADA) con un softdelete
-        success, error = RecoleccionService.update_recoleccion(recoleccion_id, {'cumplimiento': 4})
+        # Cancelar la recolección y devolver el stock
+        success, error = RecoleccionService.cancelar_recoleccion_con_stock(recoleccion_id)
         if error:
             return jsonify({'error': error}), 400
         
@@ -263,7 +263,7 @@ def cancelar_recoleccion(recoleccion_id):
         # Emitir evento de WebSocket cuando se cancela una recolección
         socketio.emit('recoleccion_cancelada', recoleccion_actualizada, namespace='/')
         
-        return jsonify({'message': 'Recolección cancelada correctamente', 'recoleccion': recoleccion_actualizada}), 200
+        return jsonify({'message': 'Recolección cancelada correctamente y stock devuelto', 'recoleccion': recoleccion_actualizada}), 200
         
     except OperationalError as e:
         print(f"Error de conexión a BD en recoleccionRoutes: {e}")

@@ -167,7 +167,7 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
-                                            {% if grupo.cumplimiento != 3 %}
+                                            {% if grupo.cumplimiento == 0 %}
                                             <a href="{{ url_for('admin_routes.edit_recoleccion', norecoleccion=norecoleccion) }}" 
                                                class="btn btn-sm btn-outline-primary" 
                                                title="Editar">
