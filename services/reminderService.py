@@ -18,92 +18,58 @@ class ReminderService:
         """Inicializar con la aplicación Flask"""
         self.app = app
         
-    def schedule_individual_reminders(self):
+    def schedule_reminder_for_new_recoleccion(self, recoleccion):
         """
-        Programa un job individual para cada recolección futura
+        Programa un recordatorio para una recolección recién creada
+        Se llama inmediatamente después de crear una recolección en la base de datos
         """
         if not self.app:
             print("Error: Aplicación Flask no inicializada")
-            return
+            return False
             
         try:
-            with self.app.app_context():
-                # Limpiar jobs existentes primero
-                self.clear_existing_reminder_jobs()
+            # Verificar que la recolección cumple los criterios para recordatorio
+            if (recoleccion.cumplimiento == 0 and 
+                recoleccion.notificado == 0 and
+                recoleccion.fechaRecoleccion >= datetime.now().date()):
                 
-                # Buscar recolecciones futuras (próximas 48 horas)
-                ahora = datetime.now()
-                limite_futuro = ahora + timedelta(hours=48)
-                
-                print(f"Buscando recolecciones futuras desde {ahora} hasta {limite_futuro}")
-                
-                recolecciones_futuras = Recoleccion.query.filter(
-                    Recoleccion.fechaRecoleccion >= ahora.date(),
-                    Recoleccion.fechaRecoleccion <= limite_futuro.date(),
-                    Recoleccion.cumplimiento == 0,
-                    Recoleccion.notificado == 0  # SOLO las que no han sido notificadas
-                ).all()
-                
-                print(f"Encontradas {len(recolecciones_futuras)} recolecciones futuras sin notificar")
-                
-                recolecciones_programadas = 0
-                recolecciones_por_lote = {}
-                
-                # Agrupar por NoRecoleccion para evitar duplicados
-                for recoleccion in recolecciones_futuras:
-                    if recoleccion.NoRecoleccion:
-                        if recoleccion.NoRecoleccion not in recolecciones_por_lote:
-                            recolecciones_por_lote[recoleccion.NoRecoleccion] = recoleccion
-                    else:
-                        # Recolección individual
-                        self.schedule_single_reminder(recoleccion)
-                        recolecciones_programadas += 1
-                
-                # Programar una por lote 
-                for no_recoleccion, recoleccion in recolecciones_por_lote.items():
-                    self.schedule_single_reminder(recoleccion)
-                    recolecciones_programadas += 1
-                
-                print(f"Programados {recolecciones_programadas} recordatorios individuales")
-                
-        except Exception as e:
-            print(f"Error programando recordatorios individuales: {str(e)}")
-    
-    def schedule_single_reminder(self, recoleccion):
-        """
-        Programa un recordatorio individual para una recolección
-        """
-        try:
-            # Calcular cuándo enviar el recordatorio (1 hora antes)
-            fecha_hora_recoleccion = datetime.combine(
-                recoleccion.fechaRecoleccion, 
-                recoleccion.horaRecoleccion
-            )
-            tiempo_recordatorio = fecha_hora_recoleccion - timedelta(hours=1)
-            
-            # Si el recordatorio es en el futuro, programarlo
-            if tiempo_recordatorio > datetime.now():
-                # Usar NoRecoleccion como identificador único
-                job_id = f"reminder_{recoleccion.NoRecoleccion}"
-                
-                self.scheduler.add_job(
-                    self.send_single_reminder,
-                    'date',
-                    run_date=tiempo_recordatorio,
-                    args=[recoleccion.NoRecoleccion], 
-                    id=job_id
+                # Calcular cuándo enviar el recordatorio (1 hora antes)
+                fecha_hora_recoleccion = datetime.combine(
+                    recoleccion.fechaRecoleccion, 
+                    recoleccion.horaRecoleccion
                 )
+                tiempo_recordatorio = fecha_hora_recoleccion - timedelta(hours=1)
                 
-                print(f"Recordatorio programado para {tiempo_recordatorio} (recolección {recoleccion.NoRecoleccion})")
+                # Solo programar si el recordatorio es en el futuro
+                if tiempo_recordatorio > datetime.now():
+                    # Usar NoRecoleccion como identificador único
+                    job_id = f"reminder_{recoleccion.NoRecoleccion}"
+                    
+                    self.scheduler.add_job(
+                        self.send_single_reminder,
+                        'date',
+                        run_date=tiempo_recordatorio,
+                        args=[recoleccion.NoRecoleccion],
+                        id=job_id
+                    )
+                    
+                    print(f"✅ Recordatorio programado para {tiempo_recordatorio} (recolección {recoleccion.NoRecoleccion})")
+                    return True
+                else:
+                    print(f"⚠️  Recolección {recoleccion.NoRecoleccion} no se programa: recordatorio sería en el pasado")
+                    return False
             else:
-                print(f"Recolección {recoleccion.NoRecoleccion} ya pasó o el recordatorio sería en el pasado")
+                print(f"❌ Recolección {recoleccion.NoRecoleccion} no cumple criterios para recordatorio")
+                return False
                 
         except Exception as e:
-            print(f"Error programando recordatorio individual: {str(e)}")
+            print(f"Error programando recordatorio para nueva recolección: {str(e)}")
+            return False
     
     def send_single_reminder(self, no_recoleccion):
         """
         Envía un recordatorio para una recolección específica
+        Se ejecuta automáticamente 1 hora antes de la recolección
         """
         if not self.app:
             print("Error: Aplicación Flask no inicializada")
@@ -115,22 +81,22 @@ class ReminderService:
                 recoleccion = Recoleccion.query.filter_by(
                     NoRecoleccion=no_recoleccion,
                     cumplimiento=0,
-                    notificado=0  # si no ha sido notificada
+                    notificado=0  # Solo si no ha sido notificada
                 ).first()
                 
                 if recoleccion:
-                    print(f"Enviando recordatorio programado para recolección {recoleccion.NoRecoleccion}")
+                    print(f"🕒 Ejecutando recordatorio programado para recolección {recoleccion.NoRecoleccion}")
                     exito = self.send_reminder_for_recoleccion(recoleccion)
                     if exito:
-                        # MARCAR COMO NOTIFICADO
+                        # MARCAR COMO NOTIFICADO = 1 para no repetir
                         recoleccion.notificado = 1
                         db.session.commit()
-                        print(f"Recordatorio enviado y marcado (notificado=1) para recolección {recoleccion.NoRecoleccion}")
+                        print(f"✅ Recordatorio enviado y marcado (notificado=1) para recolección {recoleccion.NoRecoleccion}")
                     else:
-                        print(f"Error enviando recordatorio para recolección {recoleccion.NoRecoleccion}")
-                        # No marcamos como notificado si falló, para reintentar después
+                        print(f"❌ Error enviando recordatorio para recolección {recoleccion.NoRecoleccion}")
+                        # No se marca como notificado para reintentar en la verificación de respaldo
                 else:
-                    print(f"Recolección {no_recoleccion} no encontrada, ya cumplida o YA NOTIFICADA (notificado=1)")
+                    print(f"📭 Recolección {no_recoleccion} no encontrada, ya cumplida o ya notificada")
                     
         except Exception as e:
             print(f"Error enviando recordatorio individual: {str(e)}")
@@ -140,24 +106,9 @@ class ReminderService:
             except:
                 pass
     
-    def clear_existing_reminder_jobs(self):
-        """
-        Limpia todos los jobs de recordatorios existentes
-        """
-        try:
-            jobs = self.scheduler.get_jobs()
-            jobs_eliminados = 0
-            for job in jobs:
-                if job.id.startswith('reminder_'):
-                    job.remove()
-                    jobs_eliminados += 1
-            print(f"Jobs de recordatorios anteriores eliminados: {jobs_eliminados}")
-        except Exception as e:
-            print(f"Error limpiando jobs: {str(e)}")
-    
     def send_reminder_for_recoleccion(self, recoleccion):
         """
-        Envía recordatorio para una recolección específica
+        Envía recordatorio para una recolección específica por WhatsApp
         """
         try:
             # Obtener información del usuario
@@ -203,11 +154,11 @@ class ReminderService:
             )
             
             if exito:
-                print(f"Recordatorio enviado a {usuario.nombre} para recolección {recoleccion.NoRecoleccion}")
-                print(f"   Fecha: {fecha_str} Hora: {hora_str}")
+                print(f"📱 Recordatorio enviado a {usuario.nombre} para recolección {recoleccion.NoRecoleccion}")
+                print(f"   📅 Fecha: {fecha_str} ⏰ Hora: {hora_str}")
                 return True
             else:
-                print(f"Error enviando recordatorio a {usuario.nombre}")
+                print(f"❌ Error enviando recordatorio a {usuario.nombre}")
                 return False
             
         except Exception as e:
@@ -229,27 +180,24 @@ class ReminderService:
                 print(f"🔍 Verificación de respaldo - {ahora}")
                 
                 # Buscar recolecciones que:
-                # - Son para hoy o pasado
-                # - La hora de recolección ya pasó (o está muy próxima)
+                # - Son para hoy
+                # - La hora de recolección está entre 2 horas atrás y 15 minutos en el futuro
                 # - cumplimiento = 0 (no cumplidas)
                 # - notificado = 0 (no notificadas)
-                # - En un rango de hasta 2 horas atrás (por si algún job falló)
                 
                 tiempo_limite_inferior = ahora - timedelta(hours=2)
-                tiempo_limite_superior = ahora + timedelta(minutes=15)  # Incluir las próximas 15 min
+                tiempo_limite_superior = ahora + timedelta(minutes=15)
                 
                 recolecciones_pendientes = Recoleccion.query.filter(
-                    Recoleccion.fechaRecoleccion >= tiempo_limite_inferior.date(),
-                    Recoleccion.fechaRecoleccion <= ahora.date(),
+                    Recoleccion.fechaRecoleccion == ahora.date(),
                     Recoleccion.cumplimiento == 0,
-                    Recoleccion.notificado == 0  # SOLO las no notificadas
+                    Recoleccion.notificado == 0
                 ).all()
                 
-                # Filtrar por hora también
+                # Filtrar por hora
                 recolecciones_filtradas = []
                 for rec in recolecciones_pendientes:
                     fecha_hora_recoleccion = datetime.combine(rec.fechaRecoleccion, rec.horaRecoleccion)
-                    # Si la recolección fue en las últimas 2 horas o en los próximos 15 minutos
                     if tiempo_limite_inferior <= fecha_hora_recoleccion <= tiempo_limite_superior:
                         recolecciones_filtradas.append(rec)
                 
@@ -259,13 +207,10 @@ class ReminderService:
                 for recoleccion in recolecciones_filtradas:
                     exito = self.send_reminder_for_recoleccion(recoleccion)
                     if exito:
-                        # MARCAR COMO NOTIFICADO = 1
                         recoleccion.notificado = 1
                         db.session.commit()
                         recordatorios_enviados += 1
-                        print(f"Recordatorio de respaldo enviado y marcado (notificado=1) para recolección {recoleccion.NoRecoleccion}")
-                    else:
-                        print(f"Error en recordatorio de respaldo para recolección {recoleccion.NoRecoleccion}")
+                        print(f"✅ Recordatorio de respaldo enviado para recolección {recoleccion.NoRecoleccion}")
                 
                 return recordatorios_enviados
                 
@@ -273,9 +218,44 @@ class ReminderService:
             print(f"Error en check_pending_reminders_backup: {str(e)}")
             return 0
     
+    def programar_recolecciones_existentes(self):
+        """
+        Programa recordatorios para recolecciones existentes al iniciar el servidor
+        Útil cuando el servidor se reinicia y hay recolecciones futuras pendientes
+        """
+        if not self.app:
+            print("Error: Aplicación Flask no inicializada")
+            return
+            
+        try:
+            with self.app.app_context():
+                ahora = datetime.now()
+                limite_futuro = ahora + timedelta(hours=48)
+                
+                print(f"Buscando recolecciones existentes desde {ahora} hasta {limite_futuro}")
+                
+                recolecciones_futuras = Recoleccion.query.filter(
+                    Recoleccion.fechaRecoleccion >= ahora.date(),
+                    Recoleccion.fechaRecoleccion <= limite_futuro.date(),
+                    Recoleccion.cumplimiento == 0,
+                    Recoleccion.notificado == 0
+                ).all()
+                
+                print(f"Encontradas {len(recolecciones_futuras)} recolecciones existentes sin notificar")
+                
+                programadas = 0
+                for recoleccion in recolecciones_futuras:
+                    if self.schedule_reminder_for_new_recoleccion(recoleccion):
+                        programadas += 1
+                
+                print(f"Programadas {programadas} recolecciones existentes")
+                
+        except Exception as e:
+            print(f"Error programando recolecciones existentes: {str(e)}")
+    
     def start_daily_reminders(self):
         """
-        Inicia el sistema de recordatorios con jobs individuales
+        Inicia el sistema de recordatorios
         """
         if not self.app:
             print("Error: Aplicación Flask no inicializada")
@@ -285,10 +265,10 @@ class ReminderService:
             # Iniciar el scheduler solo si no está ya corriendo
             if not self.scheduler.running:
                 self.scheduler.start()
-                print("Scheduler iniciado")
+                print("✅ Scheduler iniciado")
             
-            # 1. Programar recordatorios individuales al iniciar
-            self.schedule_individual_reminders()
+            # 1. Programar recordatorios para recolecciones existentes al iniciar
+            self.programar_recolecciones_existentes()
             
             # 2. Verificación de respaldo cada 30 minutos
             self.scheduler.add_job(
@@ -298,32 +278,14 @@ class ReminderService:
                 id='backup_check'
             )
             
-            # 3. Actualizar jobs individuales cada 6 horas (para nuevas recolecciones)
-            self.scheduler.add_job(
-                self.schedule_individual_reminders,
-                'interval',
-                hours=6,
-                id='refresh_schedule'
-            )
-            
-            # 4. También actualizar a medianoche para el día siguiente
-            self.scheduler.add_job(
-                self.schedule_individual_reminders,
-                'cron',
-                hour=0,
-                minute=1,
-                id='midnight_refresh'
-            )
-            
-            print(" Sistema de recordatorios individuales iniciado")
-            print("   - Jobs individuales programados para cada recolección")
+            print("✅ Sistema de recordatorios iniciado")
+            print("   - Jobs individuales programados al crear recolección")
             print("   - Verificación de respaldo cada 30 minutos")
-            print("   - Actualización de schedule cada 6 horas y a medianoche")
             print("   - NOTIFICADO=0 → Envía mensaje y marca NOTIFICADO=1")
             print("   - NOTIFICADO=1 → No envía mensaje (ya fue notificado)")
             
         except Exception as e:
-            print(f"Error iniciando sistema de recordatorios: {str(e)}")
+            print(f"❌ Error iniciando sistema de recordatorios: {str(e)}")
     
     def stop_reminders(self):
         """
@@ -332,9 +294,9 @@ class ReminderService:
         try:
             if self.scheduler.running:
                 self.scheduler.shutdown()
-            print("Scheduler de recordatorios detenido")
+            print("✅ Scheduler de recordatorios detenido")
         except Exception as e:
-            print(f"Error deteniendo scheduler: {str(e)}")
+            print(f"❌ Error deteniendo scheduler: {str(e)}")
     
     def get_scheduled_reminders(self):
         """
@@ -344,7 +306,7 @@ class ReminderService:
             jobs = self.scheduler.get_jobs()
             reminder_jobs = [job for job in jobs if job.id.startswith('reminder_')]
             
-            print(f"Recordatorios programados: {len(reminder_jobs)}")
+            print(f"📋 Recordatorios programados: {len(reminder_jobs)}")
             for job in reminder_jobs:
                 print(f"   - {job.id} -> {job.next_run_time}")
             

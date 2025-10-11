@@ -1,5 +1,36 @@
 from flask import Blueprint, request, jsonify, current_app
 from services.recoleccionService import RecoleccionService
+from services.reminderService import ReminderService
+from functools import wraps
+from services.userService import UserService
+from sqlalchemy.exc import OperationalError, DatabaseError
+from socketsExtends import socketio  # Importamos la instancia de SocketIO
+
+recoleccion_routes = Blueprint('recoleccion_routes', __name__)
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization'].split(" ")[1] if len(request.headers['Authorization'].split(" ")) > 1 else None
+        
+        if not token:
+            return jsonify({'error': 'Su sesión expiró, inicie sesión de nuevo'}), 401
+        
+        user_data, error = UserService.verify_jwt(token)
+        if error:
+            return jsonify({'error': error}), 401
+        
+        request.current_user = user_data
+        return f(*args, **kwargs)
+    
+    return decorated
+
+from flask import Blueprint, request, jsonify, current_app
+from services.recoleccionService import RecoleccionService
+from services.reminderService import reminder_service  # Importar el servicio de recordatorios
 from functools import wraps
 from services.userService import UserService
 from sqlalchemy.exc import OperationalError, DatabaseError
@@ -49,6 +80,17 @@ def create_recoleccion_batch():
         if error:
             return jsonify({'error': error}), 400
         
+        # PROGRAMAR RECORDATORIOS PARA LAS RECOLECCIONES BATCH CREADAS
+        if recolecciones and len(recolecciones) > 0:
+            # Tomar la primera recolección para programar el recordatorio (todas comparten el mismo NoRecoleccion)
+            primera_recoleccion = recolecciones[0]
+            # Buscar la recolección completa en la base de datos para programar el recordatorio
+            from models.recoleccionModel import Recoleccion
+            recoleccion_db = Recoleccion.query.filter_by(NoRecoleccion=primera_recoleccion['NoRecoleccion']).first()
+            if recoleccion_db:
+                reminder_service.schedule_reminder_for_new_recoleccion(recoleccion_db)
+                print(f"Recordatorio programado para recolección batch: {recoleccion_db.NoRecoleccion}")
+        
         return jsonify(recolecciones), 201
         
     except OperationalError as e:
@@ -90,6 +132,13 @@ def create_recoleccion():
         
         if error:
             return jsonify({'error': error}), 400
+        
+        # PROGRAMAR RECORDATORIO INMEDIATAMENTE para esta recolección
+        from models.recoleccionModel import Recoleccion
+        recoleccion_db = Recoleccion.query.filter_by(id=recoleccion['id']).first()
+        if recoleccion_db:
+            reminder_service.schedule_reminder_for_new_recoleccion(recoleccion_db)
+            print(f"Recordatorio programado para recolección individual: {recoleccion_db.NoRecoleccion}")
         
         # Emitir evento de WebSocket cuando se crea una recolección
         socketio.emit('recoleccion_creada', recoleccion, namespace='/')
