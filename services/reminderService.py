@@ -8,19 +8,25 @@ from services.notificationService import NotificationService
 import threading
 import time
 from apscheduler.schedulers.background import BackgroundScheduler
+from pytz import timezone
 
 class ReminderService:
     def __init__(self):
         self.scheduler = BackgroundScheduler()
         self.app = None  # Referencia a la aplicación Flask
+        self.colombia_tz = timezone('America/Bogota')  # Zona horaria de Colombia
         
     def init_app(self, app):
         """Inicializar con la aplicación Flask"""
         self.app = app
         
+    def get_colombia_time(self):
+        """Obtener la hora actual en Colombia"""
+        return datetime.now(self.colombia_tz)
+        
     def schedule_reminder_for_new_recoleccion(self, recoleccion):
         """
-        Programa un recordatorio para una recolección recién creada - VERSIÓN SIMPLIFICADA
+        Programa un recordatorio para una recolección recién creada
         """
         if not self.app:
             print("Error: Aplicación Flask no inicializada")
@@ -32,22 +38,27 @@ class ReminderService:
                 print(f"Recolección {recoleccion.NoRecoleccion} no cumple criterios")
                 return False
                 
-            # Calcular tiempos
-            ahora = datetime.now()
-            fecha_hora_recoleccion = datetime.combine(
+            # Usar hora de Colombia
+            ahora_colombia = self.get_colombia_time()
+            
+            # Convertir la fecha/hora de recolección a zona horaria de Colombia
+            fecha_hora_recoleccion_naive = datetime.combine(
                 recoleccion.fechaRecoleccion, 
                 recoleccion.horaRecoleccion
             )
+            fecha_hora_recoleccion = self.colombia_tz.localize(fecha_hora_recoleccion_naive)
+            
+            # Calcular recordatorio (1 hora antes)
             tiempo_recordatorio = fecha_hora_recoleccion - timedelta(hours=1)
             
             print(f"=== DEBUG {recoleccion.NoRecoleccion} ===")
-            print(f"Ahora: {ahora}")
+            print(f"Ahora Colombia: {ahora_colombia}")
             print(f"Recolección: {fecha_hora_recoleccion}")
             print(f"Recordatorio (1h antes): {tiempo_recordatorio}")
-            print(f"Diferencia: {(tiempo_recordatorio - ahora).total_seconds() / 60:.1f} minutos")
+            print(f"Diferencia: {(tiempo_recordatorio - ahora_colombia).total_seconds() / 60:.1f} minutos")
             
             # Si el recordatorio es en el futuro, programarlo
-            if tiempo_recordatorio > ahora:
+            if tiempo_recordatorio > ahora_colombia:
                 job_id = f"reminder_{recoleccion.NoRecoleccion}"
                 self.scheduler.add_job(
                     self.send_single_reminder,
@@ -59,9 +70,30 @@ class ReminderService:
                 print(f"Recordatorio programado para {tiempo_recordatorio}")
                 return True
             else:
-                print(f"No se programa: recordatorio sería en el pasado")
-                return False
+                # Si el recordatorio sería en el pasado, ver si podemos enviarlo inmediatamente
+                tiempo_faltante_recoleccion = fecha_hora_recoleccion - ahora_colombia
+                minutos_faltantes = tiempo_faltante_recoleccion.total_seconds() / 60
                 
+                if minutos_faltantes > 5:  # Si faltan más de 5 minutos para la recolección
+                    print(f"Recolección próxima ({minutos_faltantes:.0f} minutos), enviando recordatorio inmediato")
+                    
+                    job_id = f"reminder_immediate_{recoleccion.NoRecoleccion}"
+                    self.scheduler.add_job(
+                        self.send_single_reminder,
+                        'date',
+                        run_date=ahora_colombia + timedelta(seconds=30),
+                        args=[recoleccion.NoRecoleccion],
+                        id=job_id
+                    )
+                    return True
+                elif minutos_faltantes > 0:
+                    print(f"Recolección muy próxima ({minutos_faltantes:.0f} minutos), enviando recordatorio URGENTE")
+                    self.send_single_reminder(recoleccion.NoRecoleccion)
+                    return True
+                else:
+                    print(f"Recolección ya pasó, no se programa recordatorio")
+                    return False
+                    
         except Exception as e:
             print(f"Error programando recordatorio: {str(e)}")
             return False
@@ -155,7 +187,7 @@ class ReminderService:
             
             if exito:
                 print(f"Recordatorio enviado a {usuario.nombre} para recolección {recoleccion.NoRecoleccion}")
-                print(f"Fecha: {fecha_str} ⏰ Hora: {hora_str}")
+                print(f"Fecha: {fecha_str} Hora: {hora_str}")
                 return True
             else:
                 print(f"Error enviando recordatorio a {usuario.nombre}")
@@ -176,22 +208,24 @@ class ReminderService:
             
         try:
             with self.app.app_context():
-                ahora = datetime.now()
-                print(f"Verificación de respaldo - {ahora}")
+                ahora_colombia = self.get_colombia_time()
+                print(f"Verificación de respaldo - {ahora_colombia}")
                 
-                tiempo_limite_inferior = ahora - timedelta(hours=2)
-                tiempo_limite_superior = ahora + timedelta(minutes=15)
+                tiempo_limite_inferior = ahora_colombia - timedelta(hours=2)
+                tiempo_limite_superior = ahora_colombia + timedelta(minutes=15)
                 
                 recolecciones_pendientes = Recoleccion.query.filter(
-                    Recoleccion.fechaRecoleccion == ahora.date(),
+                    Recoleccion.fechaRecoleccion == ahora_colombia.date(),
                     Recoleccion.cumplimiento == 0,
                     Recoleccion.notificado == 0
                 ).all()
                 
-                # Filtrar por hora
+                # Filtrar por hora con zona horaria
                 recolecciones_filtradas = []
                 for rec in recolecciones_pendientes:
-                    fecha_hora_recoleccion = datetime.combine(rec.fechaRecoleccion, rec.horaRecoleccion)
+                    fecha_hora_recoleccion_naive = datetime.combine(rec.fechaRecoleccion, rec.horaRecoleccion)
+                    fecha_hora_recoleccion = self.colombia_tz.localize(fecha_hora_recoleccion_naive)
+                    
                     if tiempo_limite_inferior <= fecha_hora_recoleccion <= tiempo_limite_superior:
                         recolecciones_filtradas.append(rec)
                 
@@ -223,13 +257,13 @@ class ReminderService:
             
         try:
             with self.app.app_context():
-                ahora = datetime.now()
-                limite_futuro = ahora + timedelta(hours=48)
+                ahora_colombia = self.get_colombia_time()
+                limite_futuro = ahora_colombia + timedelta(hours=48)
                 
-                print(f"Buscando recolecciones existentes desde {ahora} hasta {limite_futuro}")
+                print(f"Buscando recolecciones existentes desde {ahora_colombia} hasta {limite_futuro}")
                 
                 recolecciones_futuras = Recoleccion.query.filter(
-                    Recoleccion.fechaRecoleccion >= ahora.date(),
+                    Recoleccion.fechaRecoleccion >= ahora_colombia.date(),
                     Recoleccion.fechaRecoleccion <= limite_futuro.date(),
                     Recoleccion.cumplimiento == 0,
                     Recoleccion.notificado == 0
