@@ -125,6 +125,7 @@
                                 <select class="form-select" id="rol" name="rol">
                                     <option value="user" {% if user.rol == 'user' %}selected{% endif %}>Usuario</option>
                                     <option value="admin" {% if user.rol == 'admin' %}selected{% endif %}>Administrador</option>
+                                    <option value="inventario" {% if user.rol == 'inventario' %}selected{% endif %}>Inventario</option>
                                 </select>
                                 {% if user.id == session.admin_user.id %}
                                 <div class="form-text text-warning">

@@ -34,11 +34,13 @@
                 </a>
             </li>
             <li class="nav-item">
+                {% if session.admin_user and session.admin_user.rol in ['admin', 'super_admin'] %}
                 <a href="{{ url_for('admin_routes.users') }}" 
-                   class="nav-link {% if request.endpoint == 'admin_routes.users' or request.endpoint == 'admin_routes.add_user' or request.endpoint == 'admin_routes.edit_user' %}active{% endif %}">
+                class="nav-link {% if request.endpoint == 'admin_routes.users' or request.endpoint == 'admin_routes.add_user' or request.endpoint == 'admin_routes.edit_user' %}active{% endif %}">
                     <i class="fas fa-users me-2"></i>
                     Usuarios
                 </a>
+                {% endif %}
             </li>
              <li class="nav-item">
                 <a href="{{ url_for('admin_routes.sedes') }}" 

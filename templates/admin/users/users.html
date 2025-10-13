@@ -73,9 +73,13 @@
                                         <i class="fas fa-phone me-1 text-muted"></i>{{ user.telefono }}
                                     </td>
                                     <td>
-                                        {% if user.rol == 'admin' %}
+                                       {% if user.rol == 'admin' %}
                                             <span class="badge bg-primary">
                                                 <i class="fas fa-crown me-1"></i>Admin
+                                            </span>
+                                        {% elif user.rol == 'inventario' %}
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-boxes me-1"></i>Inventario
                                             </span>
                                         {% else %}
                                             <span class="badge bg-secondary">

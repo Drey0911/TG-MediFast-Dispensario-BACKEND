@@ -29,6 +29,22 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def admin_or_inventario_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'admin_user' not in session:
+            return redirect(url_for('admin_routes.login'))
+        
+        # Verificar que el usuario es admin o tiene rol inventario
+        user, error = UserService.get_user_by_id(session['admin_user']['id'])
+        if error or not user or user['rol'] not in ['admin', 'inventario']:
+            session.pop('admin_user', None)
+            flash('Acceso no autorizado. Se requiere rol de administrador o inventario.', 'error')
+            return redirect(url_for('admin_routes.login'))
+        
+        return f(*args, **kwargs)
+    return decorated_function
+
 @admin_routes.route('/')
 def index():
     if 'admin_user' in session:
@@ -51,8 +67,8 @@ def login():
             flash('Credenciales inválidas', 'error')
             return render_template('admin/login.html')
         
-        if user['rol'] != 'admin':
-            flash('Acceso denegado. Solo administradores pueden acceder.', 'error')
+        if user['rol'] not in ['admin', 'inventario']:
+            flash('Acceso denegado. Solo administradores y personal de inventario pueden acceder.', 'error')
             return render_template('admin/login.html')
         
         session['admin_user'] = user
@@ -67,7 +83,7 @@ def logout():
     return redirect(url_for('admin_routes.login'))
 
 @admin_routes.route('/dashboard')
-@admin_required
+@admin_or_inventario_required
 def dashboard():
     # Obtener estadísticas de usuarios
     users, error = UserService.get_all_users()
@@ -196,7 +212,7 @@ def delete_user(user_id):
 # ------------------------------------------------------------------------------
 
 @admin_routes.route('/sedes')
-@admin_required
+@admin_or_inventario_required
 def sedes():
     sedes, error = SedeService.get_all_sedes()
     if error:
@@ -206,7 +222,7 @@ def sedes():
     return render_template('admin/sedes/sedes.html', sedes=sedes)
 
 @admin_routes.route('/sedes/add', methods=['GET', 'POST'])
-@admin_required
+@admin_or_inventario_required
 def add_sede():
     if request.method == 'POST':
         nombreSede = request.form.get('nombreSede')
@@ -229,7 +245,7 @@ def add_sede():
     return render_template('admin/sedes/add_sede.html')
 
 @admin_routes.route('/sedes/<int:sede_id>/edit', methods=['GET', 'POST'])
-@admin_required
+@admin_or_inventario_required
 def edit_sede(sede_id):
     sede, error = SedeService.get_sede_by_id(sede_id)
     if error:
@@ -255,7 +271,7 @@ def edit_sede(sede_id):
     return render_template('admin/sedes/edit_sede.html', sede=sede)
 
 @admin_routes.route('/sedes/<int:sede_id>/delete', methods=['POST'])
-@admin_required
+@admin_or_inventario_required
 def delete_sede(sede_id):
     success, error = SedeService.delete_sede(sede_id)
     
@@ -271,7 +287,7 @@ def delete_sede(sede_id):
 # ------------------------------------------------------------------------------
 
 @admin_routes.route('/medicamentos')
-@admin_required
+@admin_or_inventario_required
 def medicamentos():
     medicamentos, error = MedService.get_all_medicamentos()
     if error:
@@ -281,7 +297,7 @@ def medicamentos():
     return render_template('admin/medicamentos/medicamentos.html', medicamentos=medicamentos)
 
 @admin_routes.route('/medicamentos/add', methods=['GET', 'POST'])
-@admin_required
+@admin_or_inventario_required
 def add_medicamento():
     
     if request.method == 'POST':
@@ -320,7 +336,7 @@ def add_medicamento():
     return render_template('admin/medicamentos/add_medicamento.html')
 
 @admin_routes.route('/medicamentos/<int:medicamento_id>/edit', methods=['GET', 'POST'])
-@admin_required
+@admin_or_inventario_required
 def edit_medicamento(medicamento_id):
     
     medicamento, error = MedService.get_medicamento_by_id(medicamento_id)
@@ -356,7 +372,7 @@ def edit_medicamento(medicamento_id):
     return render_template('admin/medicamentos/edit_medicamento.html', medicamento=medicamento)
 
 @admin_routes.route('/medicamentos/<int:medicamento_id>/delete', methods=['POST'])
-@admin_required
+@admin_or_inventario_required
 def delete_medicamento(medicamento_id):
     
     success, error = MedService.delete_medicamento(medicamento_id)
@@ -371,7 +387,7 @@ def delete_medicamento(medicamento_id):
     return redirect(url_for('admin_routes.medicamentos'))
 
 @admin_routes.route('/medicamentos/<int:medicamento_id>/view')
-@admin_required
+@admin_or_inventario_required
 def view_medicamento(medicamento_id):
     
     medicamento, error = MedService.get_medicamento_by_id(medicamento_id)
@@ -382,7 +398,7 @@ def view_medicamento(medicamento_id):
     return render_template('admin/medicamentos/view_medicamento.html', medicamento=medicamento)
 
 @admin_routes.route('/medicamentos/search', methods=['GET', 'POST'])
-@admin_required
+@admin_or_inventario_required
 def search_medicamentos():
     
     medicamentos = []
@@ -410,7 +426,7 @@ def search_medicamentos():
                          search_performed=search_performed)
 
 @admin_routes.route('/medicamentos/tipos')
-@admin_required
+@admin_or_inventario_required
 def tipos_medicamentos():
     
     tipos, error = MedService.get_tipos_disponibles()
@@ -431,7 +447,7 @@ def tipos_medicamentos():
                          medicamentos_por_tipo=medicamentos_por_tipo)
 
 @admin_routes.route('/medicamentos/tipo/<string:tipo>')
-@admin_required
+@admin_or_inventario_required
 def medicamentos_by_tipo(tipo):
     
     medicamentos, error = MedService.get_medicamentos_by_tipo(tipo)
@@ -444,7 +460,7 @@ def medicamentos_by_tipo(tipo):
                          tipo=tipo)
 
 @admin_routes.route('/medicamentos/bulk-delete', methods=['POST'])
-@admin_required
+@admin_or_inventario_required
 def bulk_delete_medicamentos():
     
     medicamento_ids = request.form.getlist('medicamento_ids')
@@ -484,7 +500,7 @@ def bulk_delete_medicamentos():
 # ------------------------------------------------------------------------------
 
 @admin_routes.route('/disponibilidad')
-@admin_required
+@admin_or_inventario_required
 def disponibilidad():
     
     # Obtener filtros de la URL
@@ -522,7 +538,7 @@ def disponibilidad():
                          sedes=sedes)
 
 @admin_routes.route('/disponibilidad/add', methods=['GET', 'POST'])
-@admin_required
+@admin_or_inventario_required
 def add_disponibilidad():
     
     if request.method == 'POST':
@@ -585,7 +601,7 @@ def add_disponibilidad():
                          sedes=sedes)
 
 @admin_routes.route('/disponibilidad/<int:disponibilidad_id>/edit', methods=['GET', 'POST'])
-@admin_required
+@admin_or_inventario_required
 def edit_disponibilidad(disponibilidad_id):
     
     disponibilidad, error = DispService.get_disponibilidad_by_id(disponibilidad_id)
@@ -634,7 +650,7 @@ def edit_disponibilidad(disponibilidad_id):
                          disponibilidad=disponibilidad)
 
 @admin_routes.route('/disponibilidad/<int:disponibilidad_id>/delete', methods=['POST'])
-@admin_required
+@admin_or_inventario_required
 def delete_disponibilidad(disponibilidad_id):
     
     success, error = DispService.delete_disponibilidad(disponibilidad_id)
@@ -649,7 +665,7 @@ def delete_disponibilidad(disponibilidad_id):
     return redirect(url_for('admin_routes.disponibilidad'))
 
 @admin_routes.route('/disponibilidad/bulk-update', methods=['POST'])
-@admin_required
+@admin_or_inventario_required
 def bulk_update_disponibilidad():
     
     disponibilidad_ids = request.form.getlist('disponibilidad_ids')
@@ -723,7 +739,7 @@ def bulk_update_disponibilidad():
 # ------------------------------------------------------------------------------
 
 @admin_routes.route('/recolecciones')
-@admin_required
+@admin_or_inventario_required
 def recolecciones():
     
     # Obtener filtros de la URL
@@ -796,7 +812,7 @@ def recolecciones():
                          medicamentos=medicamentos)
 
 @admin_routes.route('/recolecciones/<string:norecoleccion>/edit', methods=['GET', 'POST'])
-@admin_required
+@admin_or_inventario_required
 def edit_recoleccion(norecoleccion):
     recolecciones, error = RecoleccionService.get_recolecciones_by_norecoleccion(norecoleccion)
     if error or not recolecciones:
@@ -858,7 +874,7 @@ def edit_recoleccion(norecoleccion):
                            norecoleccion=norecoleccion)
 
 @admin_routes.route('/recolecciones/<string:norecoleccion>/delete', methods=['POST'])
-@admin_required
+@admin_or_inventario_required
 def delete_recoleccion(norecoleccion):
     
     # Obtener todas las recolecciones con este NoRecoleccion
@@ -909,7 +925,7 @@ def delete_recoleccion(norecoleccion):
     return redirect(url_for('admin_routes.recolecciones'))
 
 @admin_routes.route('/recolecciones/<string:norecoleccion>/view')
-@admin_required
+@admin_or_inventario_required
 def view_recoleccion(norecoleccion):
     
     # Obtener todas las recolecciones con este NoRecoleccion
@@ -923,7 +939,7 @@ def view_recoleccion(norecoleccion):
                          norecoleccion=norecoleccion)
 
 @admin_routes.route('/recolecciones/usuario/<int:usuario_id>')
-@admin_required
+@admin_or_inventario_required
 def recolecciones_by_usuario(usuario_id):
     
     # Obtener información del usuario
@@ -957,7 +973,7 @@ def recolecciones_by_usuario(usuario_id):
                          usuario=usuario)
 
 @admin_routes.route('/recolecciones/pendientes')
-@admin_required
+@admin_or_inventario_required
 def recolecciones_pendientes():
     
     # Obtener recolecciones pendientes (cumplimiento = 0)
@@ -984,7 +1000,7 @@ def recolecciones_pendientes():
                          recolecciones_agrupadas=recolecciones_agrupadas)
 
 @admin_routes.route('/recolecciones/cumplidas')
-@admin_required
+@admin_or_inventario_required
 def recolecciones_cumplidas():
     
     # Obtener recolecciones cumplidas (cumplimiento = 1)
@@ -1011,7 +1027,7 @@ def recolecciones_cumplidas():
                          recolecciones_agrupadas=recolecciones_agrupadas)
 
 @admin_routes.route('/recolecciones/vencidas')
-@admin_required
+@admin_or_inventario_required
 def recolecciones_vencidas():
     
     # Obtener recolecciones vencidas (cumplimiento = 2)
