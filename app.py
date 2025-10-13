@@ -17,57 +17,6 @@ from routes.adminRoutes import admin_routes
 from services.reminderService import reminder_service
 import os, logging
 
-# Configurar logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-def print_routes(app):
-    """Función para mostrar todas las rutas de la API"""
-    print("\n" + "="*80)
-    print("RUTAS DE LA API DISPONIBLES")
-    print("="*80)
-    
-    routes = []
-    for rule in app.url_map.iter_rules():
-        methods = ','.join(sorted(rule.methods - {'OPTIONS', 'HEAD'}))
-        if methods:  # Solo mostrar rutas con métodos válidos
-            routes.append({
-                'endpoint': rule.endpoint,
-                'methods': methods,
-                'path': str(rule)
-            })
-    
-    # Ordenar rutas por path
-    routes.sort(key=lambda x: x['path'])
-    
-    # Agrupar rutas por prefijo
-    api_routes = [r for r in routes if r['path'].startswith('/api')]
-    admin_routes = [r for r in routes if not r['path'].startswith('/api') and not r['path'].startswith('/static')]
-    static_routes = [r for r in routes if r['path'].startswith('/static')]
-    
-    # Mostrar rutas de API
-    if api_routes:
-        print("\nENDPOINTS DE API:")
-        print("-" * 80)
-        for route in api_routes:
-            print(f"📍 {route['path']:45} [{route['methods']:15}] → {route['endpoint']}")
-    
-    # Mostrar rutas de Admin
-    if admin_routes:
-        print("\nRUTAS DE ADMINISTRACIÓN:")
-        print("-" * 80)
-        for route in admin_routes:
-            print(f"📍 {route['path']:45} [{route['methods']:15}] → {route['endpoint']}")
-    
-    # Mostrar resumen
-    print("\n" + "="*80)
-    print(f"RESUMEN:")
-    print(f"   • Rutas de API: {len(api_routes)}")
-    print(f"   • Rutas de Admin: {len(admin_routes)}")
-    print(f"   • Rutas estáticas: {len(static_routes)}")
-    print(f"   • Total de rutas: {len(routes)}")
-    print("="*80 + "\n")
-
 def create_app():
     app = Flask(__name__)
     CORS(app)
@@ -86,7 +35,7 @@ def create_app():
     app.register_blueprint(favoritos_routes, url_prefix='/api')  # Para acceso a rutas de API Favoritos
     app.register_blueprint(admin_routes, url_prefix='/') # Para acceso a rutas del backend Modo admin
     
-    # INICIALIZAR EL SERVICIO DE RECORDATORIOS CON LA APP
+    # Inicializar Servicio de recordatorios con los jobs individuales
     reminder_service.init_app(app)
     
     # Crear tablas al iniciar la aplicación
@@ -99,9 +48,6 @@ def create_app():
         Favoritos.create_table_if_not_exists()
         Recoleccion.create_table_if_not_exists()
         print("Tablas verificadas/creadas exitosamente")
-        
-        # Mostrar todas las rutas disponibles
-        print_routes(app)
         
         # Iniciar el servicio de recordatorios
         try:
@@ -129,7 +75,7 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8000))
     debug = os.environ.get('FLASK_DEBUG', 'True').lower() == 'true'
     
-    print(f"Servidor ejecutándose en: http://localhost:{port}")
+    print(f"Servidor de desarrollo ejecutándose en: http://localhost:{port}")
     print(f"Modo debug: {debug}")
     
     socketio.run(
