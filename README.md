@@ -104,7 +104,7 @@ backend/
    en el front, de esta manera podemos usar local el proyecto
    ```
 
-## Protoipo de ChatBot
+## Prototipo de ChatBot
 
 ## Rutas
 - `GET /api/chatbot/medicamentos-disponibles` - Obtener medicamentos dentro del chatbot
