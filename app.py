@@ -15,6 +15,7 @@ from routes.favRoutes import favoritos_routes
 from socketsExtends import socketio  
 from routes.adminRoutes import admin_routes
 from services.reminderService import reminder_service
+from routes.chatbotRoutes import chatbot_routes # Agregado de CHATBOT
 import os, logging
 
 def create_app():
@@ -34,6 +35,7 @@ def create_app():
     app.register_blueprint(recoleccion_routes, url_prefix='/api')  # Para acceso a rutas de API Recolecciones
     app.register_blueprint(favoritos_routes, url_prefix='/api')  # Para acceso a rutas de API Favoritos
     app.register_blueprint(admin_routes, url_prefix='/') # Para acceso a rutas del backend Modo admin
+    app.register_blueprint(chatbot_routes, url_prefix='/api')  # Para acceso a rutas del chatbot # Agregado de CHATBOT
     
     # Inicializar Servicio de recordatorios con los jobs individuales
     reminder_service.init_app(app)

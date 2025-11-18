@@ -104,6 +104,16 @@ backend/
    en el front, de esta manera podemos usar local el proyecto
    ```
 
+## Protoipo de ChatBot
+
+## Rutas
+- `GET /api/chatbot/medicamentos-disponibles` - Obtener medicamentos dentro del chatbot
+- `GET /api/chatbot/mensaje` - Enviar mensaje al chatbot
+
+## Uso
+
+**Configuracion .env**: Agregar a las .env la GEMINI_API_KEY y GEMINI_API_URL para usar el LLM de gemini 
+
 ## Rutas API
 
 ### Rutas de Usuario (`/api/users`)
