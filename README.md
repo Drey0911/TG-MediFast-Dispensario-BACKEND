@@ -8,13 +8,13 @@
 
 <p align="center">
    <a href="https://www.python.org"><img src="https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white" alt="Python"></a>
-   <a href="https://flask.palletsprojects.com/"><img src="https://img.shields.io/badge/Flask-Framework-000000?logo=flask&logoColor=white" alt="Flask"></a>
-   <a href="https://www.mysql.com/"><img src="https://img.shields.io/badge/MySQL-RelationaDB-00758F?logo=mysql&logoColor=white" alt="MySQL"></a>
+   <a href="https://flask.palletsprojects.com/"><img src="https://img.shields.io/badge/Flask-2.0%2B-000000?logo=flask&logoColor=white" alt="Flask"></a>
+   <a href="https://www.mysql.com/"><img src="https://img.shields.io/badge/MySQL-RelationalDB-00758F?logo=mysql&logoColor=white" alt="MySQL"></a>
    <a href="https://jinja.palletsprojects.com/"><img src="https://img.shields.io/badge/Jinja2-Templating-EA4F5A?logo=jinja&logoColor=white" alt="Jinja2"></a>
    <a href="https://jwt.io/"><img src="https://img.shields.io/badge/JWT-Auth-orange?logo=jwt&logoColor=white" alt="JWT"></a>
-   <a href="https://socket.io/"><img src="https://img.shields.io/badge/Socket.IO-Realtime-010101?logo=socketdotio&logoColor=white" alt="Socket.IO"></a>
+   <a href="https://socket.io/"><img src="https://img.shields.io/badge/Socket.IO-Realtime-2E7D32?logo=socketdotio&logoColor=white" alt="Socket.IO"></a>
    <a href="https://apscheduler.readthedocs.io/"><img src="https://img.shields.io/badge/APScheduler-Jobs-2F855A?logo=python&logoColor=white" alt="APScheduler"></a>
-   <a href="https://developers.facebook.com/docs/whatsapp"><img src="https://img.shields.io/badge/WhatsApp-Business-25D366?logo=whatsapp&logoColor=white" alt="WhatsApp Business"></a>
+   <a href="https://developers.facebook.com/docs/whatsapp/business-platform"><img src="https://img.shields.io/badge/WhatsApp%20Business%20API-Messaging-25D366?logo=whatsapp&logoColor=white" alt="WhatsApp Business API"></a>
 </p>
 
 ## Descripción del Proyecto
