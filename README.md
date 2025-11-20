@@ -8,7 +8,7 @@
 
 <p align="center">
    <a href="https://www.python.org"><img src="https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white" alt="Python"></a>
-   <a href="https://flask.palletsprojects.com/"><img src="https://img.shields.io/badge/Flask-2.0%2B-000000?logo=flask&logoColor=white" alt="Flask"></a>
+   <a href="https://flask.palletsprojects.com/"><img src="https://img.shields.io/badge/Flask-2.0%2B-1F77B4?logo=flask&logoColor=white" alt="Flask"></a>
    <a href="https://www.mysql.com/"><img src="https://img.shields.io/badge/MySQL-RelationalDB-00758F?logo=mysql&logoColor=white" alt="MySQL"></a>
    <a href="https://jinja.palletsprojects.com/"><img src="https://img.shields.io/badge/Jinja2-Templating-EA4F5A?logo=jinja&logoColor=white" alt="Jinja2"></a>
    <a href="https://jwt.io/"><img src="https://img.shields.io/badge/JWT-Auth-orange?logo=jwt&logoColor=white" alt="JWT"></a>
