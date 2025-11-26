@@ -9,11 +9,11 @@ from datetime import datetime
 
 class GeminiService:
     def __init__(self):
-        # No defaults with secrets here: leer solo desde .env / entorno
+        # Leer desde .env
         self.api_key = os.getenv('GEMINI_API_KEY')
         self.base_url = os.getenv('GEMINI_API_URL')
         
-        # Validar que las variables de entorno estén cargadas (no imprimir valores)
+        # Validar que las variables de entorno estén cargadas
         if self.api_key and self.base_url:
             print("Variables de entorno GEMINI_API_KEY y GEMINI_API_URL cargadas.")
         else:
